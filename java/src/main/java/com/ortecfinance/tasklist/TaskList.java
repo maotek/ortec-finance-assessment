@@ -127,30 +127,39 @@ public final class TaskList implements Runnable {
 
     private void viewByDeadline() {
         // TreeMap to keep keys sorted automatically
-        Map<LocalDate, List<Task>> tasksByDeadline = new TreeMap<>();
-        List<Task> tasksWithoutDeadline = new ArrayList<>();
+        Map<LocalDate, Map<String, List<Task>>> tasksByDeadline = new TreeMap<>();
+        Map<String, List<Task>> tasksWithoutDeadline = new LinkedHashMap<>();
 
-        for (List<Task> projectTasks : tasks.values()) {
-            for (Task task : projectTasks) {
+        for (Map.Entry<String, List<Task>> project : tasks.entrySet()) {
+            for (Task task : project.getValue()) {
                 if (task.getDeadline() == null) {
-                    tasksWithoutDeadline.add(task);
+                    tasksWithoutDeadline
+                            .computeIfAbsent(project.getKey(), projectName -> new ArrayList<>()).add(task);
                 } else {
-                    tasksByDeadline.computeIfAbsent(task.getDeadline(), deadline -> new ArrayList<>()).add(task);
+                    tasksByDeadline
+                            .computeIfAbsent(task.getDeadline(), deadline -> new LinkedHashMap<>())
+                            .computeIfAbsent(project.getKey(), projectName -> new ArrayList<>())
+                            .add(task);
                 }
             }
         }
 
-        for (Map.Entry<LocalDate, List<Task>> deadlineTasks : tasksByDeadline.entrySet()) {
-            out.println(deadlineTasks.getKey().format(DEADLINE_FORMAT) + ":");
-            for (Task task : deadlineTasks.getValue()) {
-                out.printf("    %d: %s%n", task.getId(), task.getDescription());
-            }
+        for (Map.Entry<LocalDate, Map<String, List<Task>>> deadlineProjects : tasksByDeadline.entrySet()) {
+            out.println(deadlineProjects.getKey().format(DEADLINE_FORMAT) + ":");
+            printTasksByProject(deadlineProjects.getValue());
         }
 
         if (!tasksWithoutDeadline.isEmpty()) {
             out.println("No deadline:");
-            for (Task task : tasksWithoutDeadline) {
-                out.printf("    %d: %s%n", task.getId(), task.getDescription());
+            printTasksByProject(tasksWithoutDeadline);
+        }
+    }
+
+    private void printTasksByProject(Map<String, List<Task>> tasksByProject) {
+        for (Map.Entry<String, List<Task>> project : tasksByProject.entrySet()) {
+            out.println("    " + project.getKey() + ":");
+            for (Task task : project.getValue()) {
+                out.printf("        %d: %s%n", task.getId(), task.getDescription());
             }
         }
     }

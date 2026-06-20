@@ -196,12 +196,16 @@ public final class ApplicationTest {
         execute("view-by-deadline");
         readLines(
                 "11-11-2024:",
-                "    1: Eat more donuts.",
-                "    3: Four Elements of Simple Design",
+                "    secrets:",
+                "        1: Eat more donuts.",
+                "    training:",
+                "        3: Four Elements of Simple Design",
                 "13-11-2024:",
-                "    2: Destroy all humans.",
+                "    secrets:",
+                "        2: Destroy all humans.",
                 "No deadline:",
-                "    4: Refactor the codebase"
+                "    training:",
+                "        4: Refactor the codebase"
         );
 
         execute("quit");
@@ -217,9 +221,11 @@ public final class ApplicationTest {
         execute("view-by-deadline");
         readLines(
                 "13-11-2024:",
-                "    2: Interaction-Driven Design",
+                "    training:",
+                "        2: Interaction-Driven Design",
                 "No deadline:",
-                "    1: Refactor the codebase"
+                "    training:",
+                "        1: Refactor the codebase"
         );
 
         execute("quit");
