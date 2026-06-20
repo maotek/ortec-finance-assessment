@@ -181,6 +181,50 @@ public final class ApplicationTest {
         execute("quit");
     }
 
+    @Test
+    void it_shows_tasks_grouped_by_deadline() throws IOException {
+        execute("add project secrets");
+        execute("add task secrets Eat more donuts.");
+        execute("add task secrets Destroy all humans.");
+        execute("add project training");
+        execute("add task training Four Elements of Simple Design");
+        execute("add task training Refactor the codebase");
+        execute("deadline 1 11-11-2024");
+        execute("deadline 2 13-11-2024");
+        execute("deadline 3 11-11-2024");
+
+        execute("view-by-deadline");
+        readLines(
+                "11-11-2024:",
+                "    1: Eat more donuts.",
+                "    3: Four Elements of Simple Design",
+                "13-11-2024:",
+                "    2: Destroy all humans.",
+                "No deadline:",
+                "    4: Refactor the codebase"
+        );
+
+        execute("quit");
+    }
+
+    @Test
+    void it_puts_tasks_without_a_deadline_at_the_end() throws IOException {
+        execute("add project training");
+        execute("add task training Refactor the codebase");
+        execute("add task training Interaction-Driven Design");
+        execute("deadline 2 13-11-2024");
+
+        execute("view-by-deadline");
+        readLines(
+                "13-11-2024:",
+                "    2: Interaction-Driven Design",
+                "No deadline:",
+                "    1: Refactor the codebase"
+        );
+
+        execute("quit");
+    }
+
     private void execute(String command) throws IOException {
         read(PROMPT);
         write(command);
