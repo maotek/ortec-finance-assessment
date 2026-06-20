@@ -94,6 +94,47 @@ public final class ApplicationTest {
         execute("quit");
     }
 
+    @Test
+    void it_adds_a_deadline_to_a_task() throws IOException {
+        execute("add project secrets");
+        execute("add task secrets Eat more donuts.");
+        execute("deadline 1 25-11-2024");
+
+        execute("show");
+        readLines(
+                "secrets",
+                "    [ ] 1: Eat more donuts. (deadline: 25-11-2024)",
+                ""
+        );
+
+        execute("quit");
+    }
+
+    @Test
+    void it_reports_when_adding_a_deadline_to_an_unknown_task() throws IOException {
+        execute("deadline 99 25-11-2024");
+        readLines("Could not find a task with an ID of 99.");
+
+        execute("quit");
+    }
+
+    @Test
+    void it_reports_when_adding_an_invalid_deadline() throws IOException {
+        execute("add project secrets");
+        execute("add task secrets Eat more donuts.");
+        execute("deadline 1 31-02-2024");
+        readLines("Invalid deadline \"31-02-2024\". Use format dd-MM-yyyy.");
+
+        execute("show");
+        readLines(
+                "secrets",
+                "    [ ] 1: Eat more donuts.",
+                ""
+        );
+
+        execute("quit");
+    }
+
     private void execute(String command) throws IOException {
         read(PROMPT);
         write(command);
