@@ -3,6 +3,8 @@ package com.ortecfinance.tasklist;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static java.lang.System.lineSeparator;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -10,6 +12,8 @@ import static org.hamcrest.Matchers.is;
 
 public final class ApplicationTest {
     public static final String PROMPT = "> ";
+    private static final DateTimeFormatter DEADLINE_FORMAT = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
     private final PipedOutputStream inStream = new PipedOutputStream();
     private final PrintWriter inWriter = new PrintWriter(inStream, true);
 
@@ -129,6 +133,48 @@ public final class ApplicationTest {
         readLines(
                 "secrets",
                 "    [ ] 1: Eat more donuts.",
+                ""
+        );
+
+        execute("quit");
+    }
+
+    @Test
+    void it_shows_tasks_with_a_deadline_for_today() throws IOException {
+        String today = LocalDate.now().format(DEADLINE_FORMAT);
+
+        execute("add project secrets");
+        execute("add task secrets Eat more donuts.");
+        execute("add task secrets Destroy all humans.");
+        execute("deadline 1 " + today);
+
+        execute("today");
+        readLines(
+                "secrets",
+                "    [ ] 1: Eat more donuts. (deadline: " + today + ")",
+                ""
+        );
+
+        execute("quit");
+    }
+
+    @Test
+    void it_does_not_show_projects_without_tasks_due_today() throws IOException {
+        String today = LocalDate.now().format(DEADLINE_FORMAT);
+        String tomorrow = LocalDate.now().plusDays(1).format(DEADLINE_FORMAT);
+
+        execute("add project secrets");
+        execute("add task secrets Eat more donuts.");
+        execute("deadline 1 " + tomorrow);
+        execute("add project training");
+        execute("add task training Four Elements of Simple Design");
+        execute("deadline 2 " + today);
+        execute("add task training SOLID");
+
+        execute("today");
+        readLines(
+                "training",
+                "    [ ] 2: Four Elements of Simple Design (deadline: " + today + ")",
                 ""
         );
 
