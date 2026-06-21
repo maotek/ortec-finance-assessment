@@ -1,11 +1,14 @@
 package com.ortecfinance.tasklist;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
 
 public final class Task {
     private final long id;
     private final String description;
     private boolean done;
+    // Keep REST deadline responses as ISO date strings.
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate deadline;
 
     public Task(long id, String description, boolean done) {

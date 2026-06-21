@@ -6,10 +6,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,5 +87,41 @@ public class TaskControllerTest {
                                 }
                                 """))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void it_updates_a_task_deadline() throws Exception {
+        taskService.addProject("training");
+        Task task = taskService.addTask("training", "SOLID");
+
+        mockMvc.perform(put("/projects/training/tasks/" + task.getId())
+                        .param("deadline", "25-11-2024"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.description", is("SOLID")))
+                .andExpect(jsonPath("$.deadline", is("2024-11-25")));
+    }
+
+    @Test
+    void it_returns_not_found_when_updating_a_deadline_for_an_unknown_task() throws Exception {
+        taskService.addProject("training");
+
+        mockMvc.perform(put("/projects/training/tasks/99")
+                        .param("deadline", "25-11-2024"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void it_returns_bad_request_when_updating_a_deadline_with_an_invalid_date() throws Exception {
+        taskService.addProject("training");
+        Task task = taskService.addTask("training", "SOLID");
+
+        mockMvc.perform(put("/projects/training/tasks/" + task.getId())
+                        .param("deadline", "31-02-2024"))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertThat(
+                        result.getResolvedException().getMessage(),
+                        containsString("Invalid deadline \"31-02-2024\". Use format dd-MM-yyyy.")
+                ));
     }
 }
