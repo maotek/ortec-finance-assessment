@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Repository;
 
 /**
  * In-memory storage for now. This can be replaced by a database-backed repository later.
  */
+@Repository
 public class TaskRepository {
     private final Map<String, List<Task>> tasks = new LinkedHashMap<>();
     private long lastId = 0;
