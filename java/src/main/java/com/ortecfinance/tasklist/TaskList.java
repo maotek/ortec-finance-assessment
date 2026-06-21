@@ -99,7 +99,7 @@ public final class TaskList implements Runnable {
     }
 
     private void show() {
-        for (Map.Entry<String, List<Task>> project : taskRepository.findAll().entrySet()) {
+        for (Map.Entry<String, List<Task>> project : taskService.getProjects().entrySet()) {
             out.println(project.getKey());
             for (Task task : project.getValue()) {
                 printTask(task);

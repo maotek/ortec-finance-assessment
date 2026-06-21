@@ -14,6 +14,10 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
+    public Map<String, List<Task>> getProjects() {
+        return taskRepository.findAll();
+    }
+
     public Map<String, List<Task>> getTasksDueToday() {
         LocalDate today = LocalDate.now();
         Map<String, List<Task>> tasksDueToday = new LinkedHashMap<>();

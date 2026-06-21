@@ -47,6 +47,19 @@ public final class TaskServiceTest {
     }
 
     @Test
+    void it_gets_projects_with_their_tasks() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+        service.addProject("training");
+        Task task = service.addTask("training", "SOLID");
+
+        Map<String, List<Task>> projects = service.getProjects();
+
+        assertThat(projects.keySet(), contains("training"));
+        assertThat(projects.get("training"), contains(task));
+    }
+
+    @Test
     void it_marks_a_task_as_done() {
         TaskRepository repository = new TaskRepository();
         TaskService service = new TaskService(repository);
