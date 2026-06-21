@@ -51,4 +51,38 @@ public class TaskControllerTest {
                 .andExpect(jsonPath("$.training[0].description", is("SOLID")))
                 .andExpect(jsonPath("$.training[0].done", is(false)));
     }
+
+    @Test
+    void it_creates_a_task_for_a_project() throws Exception {
+        taskService.addProject("training");
+
+        mockMvc.perform(post("/projects/training/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "description": "SOLID"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.description", is("SOLID")))
+                .andExpect(jsonPath("$.done", is(false)));
+
+        mockMvc.perform(get("/projects"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.training", hasSize(1)))
+                .andExpect(jsonPath("$.training[0].description", is("SOLID")));
+    }
+
+    @Test
+    void it_returns_not_found_when_creating_a_task_for_an_unknown_project() throws Exception {
+        mockMvc.perform(post("/projects/missing/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "description": "SOLID"
+                                }
+                                """))
+                .andExpect(status().isNotFound());
+    }
 }
