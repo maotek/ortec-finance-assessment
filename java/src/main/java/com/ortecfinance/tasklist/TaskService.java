@@ -68,4 +68,14 @@ public class TaskService {
         }
         return null;
     }
+
+    public Task setDeadline(long id, LocalDate deadline) {
+        Task task = taskRepository.findTaskById(id);
+        if (task == null) {
+            return null;
+        }
+
+        task.setDeadline(deadline);
+        return task;
+    }
 }

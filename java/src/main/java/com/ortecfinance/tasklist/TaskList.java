@@ -182,18 +182,18 @@ public final class TaskList implements Runnable {
 
     private void deadline(String commandLine) {
         String[] idDeadline = commandLine.split(" ", 2);
-        int id = Integer.parseInt(idDeadline[0]);
-        Task task = taskRepository.findTaskById(id);
-        if (task == null) {
-            out.printf("Could not find a task with an ID of %d.", id);
-            out.println();
-            return;
-        }
+        long id = Long.parseLong(idDeadline[0]);
+
         LocalDate deadline = parseDeadline(idDeadline[1]);
         if (deadline == null) {
             return;
         }
-        task.setDeadline(deadline);
+
+        Task task = taskService.setDeadline(id, deadline);
+        if (task == null) {
+            out.printf("Could not find a task with an ID of %d.", id);
+            out.println();
+        }
     }
 
     private void setDone(String idString, boolean done) {

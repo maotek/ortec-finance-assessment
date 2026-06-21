@@ -84,6 +84,30 @@ public final class TaskServiceTest {
     }
 
     @Test
+    void it_sets_a_deadline_for_a_task() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+        service.addProject("training");
+        Task task = service.addTask("training", "SOLID");
+        LocalDate deadline = LocalDate.of(2024, 11, 25);
+
+        Task updatedTask = service.setDeadline(task.getId(), deadline);
+
+        assertThat(updatedTask, is(task));
+        assertThat(task.getDeadline(), is(deadline));
+    }
+
+    @Test
+    void it_returns_null_when_setting_a_deadline_for_an_unknown_task() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+
+        Task task = service.setDeadline(99, LocalDate.of(2024, 11, 25));
+
+        assertThat(task, is(nullValue()));
+    }
+
+    @Test
     void it_gets_tasks_due_today() {
         TaskRepository repository = new TaskRepository();
         TaskService service = new TaskService(repository);
