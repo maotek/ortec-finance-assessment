@@ -47,6 +47,43 @@ public final class TaskServiceTest {
     }
 
     @Test
+    void it_marks_a_task_as_done() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+        service.addProject("training");
+        Task task = service.addTask("training", "SOLID");
+
+        Task updatedTask = service.setDone(task.getId(), true);
+
+        assertThat(updatedTask, is(task));
+        assertThat(task.isDone(), is(true));
+    }
+
+    @Test
+    void it_marks_a_task_as_not_done() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+        service.addProject("training");
+        Task task = service.addTask("training", "SOLID");
+        service.setDone(task.getId(), true);
+
+        Task updatedTask = service.setDone(task.getId(), false);
+
+        assertThat(updatedTask, is(task));
+        assertThat(task.isDone(), is(false));
+    }
+
+    @Test
+    void it_returns_null_when_marking_an_unknown_task_as_done() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+
+        Task task = service.setDone(99, true);
+
+        assertThat(task, is(nullValue()));
+    }
+
+    @Test
     void it_gets_tasks_due_today() {
         TaskRepository repository = new TaskRepository();
         TaskService service = new TaskService(repository);

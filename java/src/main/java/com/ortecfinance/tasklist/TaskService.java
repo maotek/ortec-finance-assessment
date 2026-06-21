@@ -59,4 +59,13 @@ public class TaskService {
     public Task addTask(String project, String description) {
         return taskRepository.addTask(project, description);
     }
+
+    public Task setDone(long id, boolean done) {
+        Task task = taskRepository.findTaskById(id);
+        if (task != null) {
+            task.setDone(done);
+            return task;
+        }
+        return null;
+    }
 }
