@@ -20,21 +20,24 @@ public final class TaskList implements Runnable {
     private static final DateTimeFormatter DEADLINE_FORMAT = DateTimeFormatter.ofPattern("dd-MM-uuuu")
             .withResolverStyle(ResolverStyle.STRICT);
 
-    private final Map<String, List<Task>> tasks = new LinkedHashMap<>();
+    private final TaskRepository taskRepository;
     private final BufferedReader in;
     private final PrintWriter out;
-
-    private long lastId = 0;
 
     public static void startConsole() {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter out = new PrintWriter(System.out);
-        new TaskList(in, out).run();
+        new TaskList(in, out, new TaskRepository()).run();
     }
 
     public TaskList(BufferedReader reader, PrintWriter writer) {
+        this(reader, writer, new TaskRepository());
+    }
+
+    public TaskList(BufferedReader reader, PrintWriter writer, TaskRepository taskRepository) {
         this.in = reader;
         this.out = writer;
+        this.taskRepository = taskRepository;
     }
 
     public void run() {
@@ -90,7 +93,7 @@ public final class TaskList implements Runnable {
     }
 
     private void show() {
-        for (Map.Entry<String, List<Task>> project : tasks.entrySet()) {
+        for (Map.Entry<String, List<Task>> project : taskRepository.findAll().entrySet()) {
             out.println(project.getKey());
             for (Task task : project.getValue()) {
                 printTask(task);
@@ -101,7 +104,7 @@ public final class TaskList implements Runnable {
 
     private void today() {
         LocalDate today = LocalDate.now();
-        for (Map.Entry<String, List<Task>> project : tasks.entrySet()) {
+        for (Map.Entry<String, List<Task>> project : taskRepository.findAll().entrySet()) {
             List<Task> tasksForToday = project.getValue().stream()
                     .filter(task -> today.equals(task.getDeadline()))
                     .toList();
@@ -130,7 +133,7 @@ public final class TaskList implements Runnable {
         Map<LocalDate, Map<String, List<Task>>> tasksByDeadline = new TreeMap<>();
         Map<String, List<Task>> tasksWithoutDeadline = new LinkedHashMap<>();
 
-        for (Map.Entry<String, List<Task>> project : tasks.entrySet()) {
+        for (Map.Entry<String, List<Task>> project : taskRepository.findAll().entrySet()) {
             for (Task task : project.getValue()) {
                 if (task.getDeadline() == null) {
                     tasksWithoutDeadline
@@ -176,17 +179,15 @@ public final class TaskList implements Runnable {
     }
 
     private void addProject(String name) {
-        tasks.put(name, new ArrayList<Task>());
+        taskRepository.addProject(name);
     }
 
     private void addTask(String project, String description) {
-        List<Task> projectTasks = tasks.get(project);
-        if (projectTasks == null) {
+        Task task = taskRepository.addTask(project, description);
+        if (task == null) {
             out.printf("Could not find a project with the name \"%s\".", project);
             out.println();
-            return;
         }
-        projectTasks.add(new Task(nextId(), description, false));
     }
 
     private void check(String idString) {
@@ -200,7 +201,7 @@ public final class TaskList implements Runnable {
     private void deadline(String commandLine) {
         String[] idDeadline = commandLine.split(" ", 2);
         int id = Integer.parseInt(idDeadline[0]);
-        Task task = findTaskById(id);
+        Task task = taskRepository.findTaskById(id);
         if (task == null) {
             out.printf("Could not find a task with an ID of %d.", id);
             out.println();
@@ -215,24 +216,13 @@ public final class TaskList implements Runnable {
 
     private void setDone(String idString, boolean done) {
         int id = Integer.parseInt(idString);
-        Task task = findTaskById(id);
+        Task task = taskRepository.findTaskById(id);
         if (task != null) {
             task.setDone(done);
             return;
         }
         out.printf("Could not find a task with an ID of %d.", id);
         out.println();
-    }
-
-    private Task findTaskById(int id) {
-        for (Map.Entry<String, List<Task>> project : tasks.entrySet()) {
-            for (Task task : project.getValue()) {
-                if (task.getId() == id) {
-                    return task;
-                }
-            }
-        }
-        return null;
     }
 
     private String formatDeadline(Task task) {
@@ -270,7 +260,4 @@ public final class TaskList implements Runnable {
         out.println();
     }
 
-    private long nextId() {
-        return ++lastId;
-    }
 }
