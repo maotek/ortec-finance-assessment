@@ -51,4 +51,12 @@ public class TaskService {
 
         return new DeadlineView(tasksByDeadline, tasksWithoutDeadline);
     }
+
+    public void addProject(String name) {
+        taskRepository.addProject(name);
+    }
+
+    public Task addTask(String project, String description) {
+        return taskRepository.addTask(project, description);
+    }
 }

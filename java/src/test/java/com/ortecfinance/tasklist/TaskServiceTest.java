@@ -8,9 +8,44 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public final class TaskServiceTest {
+    @Test
+    void it_adds_a_project() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+
+        service.addProject("training");
+
+        assertThat(repository.findAll().containsKey("training"), is(true));
+        assertThat(repository.findAll().get("training"), is(empty()));
+    }
+
+    @Test
+    void it_adds_a_task_to_a_project() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+        service.addProject("training");
+
+        Task task = service.addTask("training", "SOLID");
+
+        assertThat(task.getDescription(), is("SOLID"));
+        assertThat(repository.findAll().get("training"), contains(task));
+    }
+
+    @Test
+    void it_returns_null_when_adding_a_task_to_an_unknown_project() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+
+        Task task = service.addTask("missing", "SOLID");
+
+        assertThat(task, is(nullValue()));
+    }
+
     @Test
     void it_gets_tasks_due_today() {
         TaskRepository repository = new TaskRepository();
