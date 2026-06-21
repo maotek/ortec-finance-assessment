@@ -21,23 +21,32 @@ public final class TaskList implements Runnable {
             .withResolverStyle(ResolverStyle.STRICT);
 
     private final TaskRepository taskRepository;
+    private final TaskService taskService;
     private final BufferedReader in;
     private final PrintWriter out;
 
     public static void startConsole() {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter out = new PrintWriter(System.out);
-        new TaskList(in, out, new TaskRepository()).run();
+        TaskRepository taskRepository = new TaskRepository();
+        TaskService taskService = new TaskService(taskRepository);
+        new TaskList(in, out, taskRepository, taskService).run();
     }
 
     public TaskList(BufferedReader reader, PrintWriter writer) {
-        this(reader, writer, new TaskRepository());
-    }
-
-    public TaskList(BufferedReader reader, PrintWriter writer, TaskRepository taskRepository) {
+        TaskRepository taskRepository = new TaskRepository();
+        TaskService taskService = new TaskService(taskRepository);
         this.in = reader;
         this.out = writer;
         this.taskRepository = taskRepository;
+        this.taskService = taskService;
+    }
+
+    public TaskList(BufferedReader reader, PrintWriter writer, TaskRepository taskRepository, TaskService taskService) {
+        this.in = reader;
+        this.out = writer;
+        this.taskRepository = taskRepository;
+        this.taskService = taskService;
     }
 
     public void run() {
@@ -103,17 +112,9 @@ public final class TaskList implements Runnable {
     }
 
     private void today() {
-        LocalDate today = LocalDate.now();
-        for (Map.Entry<String, List<Task>> project : taskRepository.findAll().entrySet()) {
-            List<Task> tasksForToday = project.getValue().stream()
-                    .filter(task -> today.equals(task.getDeadline()))
-                    .toList();
-            if (tasksForToday.isEmpty()) {
-                continue;
-            }
-
-            out.println(project.getKey());
-            for (Task task : tasksForToday) {
+        for (Map.Entry<String, List<Task>> tasksDueToday : taskService.getTasksDueToday().entrySet()) {
+            out.println(tasksDueToday.getKey());
+            for (Task task : tasksDueToday.getValue()) {
                 printTask(task);
             }
             out.println();
