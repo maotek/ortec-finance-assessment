@@ -8,11 +8,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public final class TaskList implements Runnable {
     private static final String QUIT = "quit";
@@ -130,32 +127,16 @@ public final class TaskList implements Runnable {
     }
 
     private void viewByDeadline() {
-        // TreeMap to keep keys sorted automatically
-        Map<LocalDate, Map<String, List<Task>>> tasksByDeadline = new TreeMap<>();
-        Map<String, List<Task>> tasksWithoutDeadline = new LinkedHashMap<>();
+        DeadlineView deadlineView = taskService.getTasksGroupedByDeadline();
 
-        for (Map.Entry<String, List<Task>> project : taskRepository.findAll().entrySet()) {
-            for (Task task : project.getValue()) {
-                if (task.getDeadline() == null) {
-                    tasksWithoutDeadline
-                            .computeIfAbsent(project.getKey(), projectName -> new ArrayList<>()).add(task);
-                } else {
-                    tasksByDeadline
-                            .computeIfAbsent(task.getDeadline(), deadline -> new LinkedHashMap<>())
-                            .computeIfAbsent(project.getKey(), projectName -> new ArrayList<>())
-                            .add(task);
-                }
-            }
-        }
-
-        for (Map.Entry<LocalDate, Map<String, List<Task>>> deadlineProjects : tasksByDeadline.entrySet()) {
+        for (Map.Entry<LocalDate, Map<String, List<Task>>> deadlineProjects : deadlineView.tasksWithDeadline().entrySet()) {
             out.println(deadlineProjects.getKey().format(DEADLINE_FORMAT) + ":");
             printTasksByProject(deadlineProjects.getValue());
         }
 
-        if (!tasksWithoutDeadline.isEmpty()) {
+        if (!deadlineView.tasksWithoutDeadline().isEmpty()) {
             out.println("No deadline:");
-            printTasksByProject(tasksWithoutDeadline);
+            printTasksByProject(deadlineView.tasksWithoutDeadline());
         }
     }
 

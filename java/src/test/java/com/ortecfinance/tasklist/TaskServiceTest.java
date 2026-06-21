@@ -43,4 +43,43 @@ public final class TaskServiceTest {
         assertThat(tasksDueToday.containsKey("secrets"), is(false));
         assertThat(tasksDueToday.get("training"), contains(taskDueToday));
     }
+
+    @Test
+    void it_gets_tasks_grouped_by_deadline() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+        repository.addProject("secrets");
+        Task firstTask = repository.addTask("secrets", "Eat more donuts.");
+        Task secondTask = repository.addTask("secrets", "Destroy all humans.");
+        repository.addProject("training");
+        Task thirdTask = repository.addTask("training", "Four Elements of Simple Design");
+        firstTask.setDeadline(LocalDate.of(2024, 11, 11));
+        secondTask.setDeadline(LocalDate.of(2024, 11, 13));
+        thirdTask.setDeadline(LocalDate.of(2024, 11, 11));
+
+        DeadlineView deadlineView = service.getTasksGroupedByDeadline();
+
+        assertThat(deadlineView.tasksWithDeadline().keySet(),
+                contains(LocalDate.of(2024, 11, 11), LocalDate.of(2024, 11, 13)));
+        assertThat(deadlineView.tasksWithDeadline().get(LocalDate.of(2024, 11, 11)).get("secrets"),
+                contains(firstTask));
+        assertThat(deadlineView.tasksWithDeadline().get(LocalDate.of(2024, 11, 11)).get("training"),
+                contains(thirdTask));
+        assertThat(deadlineView.tasksWithDeadline().get(LocalDate.of(2024, 11, 13)).get("secrets"),
+                contains(secondTask));
+    }
+
+    @Test
+    void it_gets_tasks_without_a_deadline() {
+        TaskRepository repository = new TaskRepository();
+        TaskService service = new TaskService(repository);
+        repository.addProject("training");
+        Task taskWithoutDeadline = repository.addTask("training", "Refactor the codebase");
+        Task taskWithDeadline = repository.addTask("training", "Interaction-Driven Design");
+        taskWithDeadline.setDeadline(LocalDate.of(2024, 11, 13));
+
+        DeadlineView deadlineView = service.getTasksGroupedByDeadline();
+
+        assertThat(deadlineView.tasksWithoutDeadline().get("training"), contains(taskWithoutDeadline));
+    }
 }
