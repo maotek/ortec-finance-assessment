@@ -124,4 +124,19 @@ public class TaskControllerTest {
                         containsString("Invalid deadline \"31-02-2024\". Use format dd-MM-yyyy.")
                 ));
     }
+
+    @Test
+    void it_gets_tasks_grouped_by_deadline() throws Exception {
+        taskService.addProject("training");
+        Task taskWithDeadline = taskService.addTask("training", "SOLID");
+        taskService.addTask("training", "Refactor the codebase");
+        taskService.setDeadline(taskWithDeadline.getId(), java.time.LocalDate.of(2024, 11, 25));
+
+        mockMvc.perform(get("/projects/view_by_deadline"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$['25-11-2024'].training", hasSize(1)))
+                .andExpect(jsonPath("$['25-11-2024'].training[0].description", is("SOLID")))
+                .andExpect(jsonPath("$['No deadline'].training", hasSize(1)))
+                .andExpect(jsonPath("$['No deadline'].training[0].description", is("Refactor the codebase")));
+    }
 }

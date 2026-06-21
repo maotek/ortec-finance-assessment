@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,22 @@ public class TaskController {
     @GetMapping
     public Map<String, List<Task>> getProjects() {
         return taskService.getProjects();
+    }
+
+    @GetMapping("/view_by_deadline")
+    public Map<String, Map<String, List<Task>>> getTasksGroupedByDeadline() {
+        DeadlineView deadlineView = taskService.getTasksGroupedByDeadline();
+        Map<String, Map<String, List<Task>>> tasksByDeadline = new LinkedHashMap<>();
+
+        for (Map.Entry<LocalDate, Map<String, List<Task>>> entry : deadlineView.tasksWithDeadline().entrySet()) {
+            tasksByDeadline.put(entry.getKey().format(DEADLINE_FORMAT), entry.getValue());
+        }
+
+        if (!deadlineView.tasksWithoutDeadline().isEmpty()) {
+            tasksByDeadline.put("No deadline", deadlineView.tasksWithoutDeadline());
+        }
+
+        return tasksByDeadline;
     }
 
     @PostMapping("/{project}/tasks")
