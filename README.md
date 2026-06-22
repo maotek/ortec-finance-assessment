@@ -1,5 +1,32 @@
 # Task List
 
+> ## Solution notes
+>
+> ### Running
+>
+> From the `java` directory:
+>
+> - Console only: `mvn spring-boot:run`
+> - REST API only: `mvn spring-boot:run -Dspring-boot.run.arguments=web`
+> - Console and REST API together: `mvn spring-boot:run -Dspring-boot.run.arguments=both`
+>
+> The REST API runs on `http://localhost:8080`.
+>
+> ### Testing
+>
+> From the `java` directory:
+>
+> - Run all tests: `mvn test`
+>
+> ### TODO (for improvements)
+>
+> - Add Javadoc and comments where they clarify intent.
+> - Add REST-specific DTOs for API request and response shapes.
+> - Add a style checker; some lines currently exceed the preferred line length.
+> - Increase test coverage.
+> - Consider converting projects from a map entry to a dedicated `Project` class.
+> - Fix overlapping command line and spring logs when running both console and rest API.
+>
 You have been handed over an existing (fictional) codebase of a task list application. This application allows you to create projects, add tasks to those projects, check and uncheck them, and view tasks by project.
 Your job is to add extra features to the application, and to refactor the codebase to make it more maintainable and testable (since the code base is not in the best shape right now).
 
@@ -81,5 +108,4 @@ _Optional_:
 - `POST /projects/{project_id}/tasks`: Create a new task for a project
 - `PUT /projects/{project_id}/tasks/{task_id}?deadline`: Update the deadline for a task
 - `GET /projects/view_by_deadline`: Get all tasks grouped by deadline (or also by project if you did the optional part)
-
 
