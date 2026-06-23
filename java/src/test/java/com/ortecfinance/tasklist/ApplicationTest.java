@@ -231,6 +231,25 @@ public final class ApplicationTest {
         execute("quit");
     }
 
+    @Test
+    void it_shows_help() throws IOException {
+        execute("help");
+        readLines(
+                "Commands:",
+                "  show",
+                "  add project <project name>",
+                "  add task <project name> <task description>",
+                "  check <task ID>",
+                "  uncheck <task ID>",
+                "  deadline <task ID> <deadline>",
+                "  today",
+                "  view-by-deadline",
+                ""
+        );
+
+        execute("quit");
+    }
+
     private void execute(String command) throws IOException {
         read(PROMPT);
         write(command);
