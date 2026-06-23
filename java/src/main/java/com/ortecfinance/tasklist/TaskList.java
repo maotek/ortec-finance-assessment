@@ -129,7 +129,8 @@ public final class TaskList implements Runnable {
     private void viewByDeadline() {
         DeadlineView deadlineView = taskService.getTasksGroupedByDeadline();
 
-        for (Map.Entry<LocalDate, Map<String, List<Task>>> deadlineProjects : deadlineView.tasksWithDeadline().entrySet()) {
+        for (Map.Entry<LocalDate, Map<String, List<Task>>> deadlineProjects
+                : deadlineView.tasksWithDeadline().entrySet()) {
             out.println(deadlineProjects.getKey().format(DEADLINE_FORMAT) + ":");
             printTasksByProject(deadlineProjects.getValue());
         }

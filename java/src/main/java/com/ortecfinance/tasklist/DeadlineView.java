@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public record DeadlineView(
-    Map<LocalDate, Map<String, List<Task>>> tasksWithDeadline,
-    Map<String, List<Task>> tasksWithoutDeadline
+        Map<LocalDate, Map<String, List<Task>>> tasksWithDeadline,
+        Map<String, List<Task>> tasksWithoutDeadline
 ) {
 }
