@@ -16,13 +16,14 @@
 >
 > From the `java` directory:
 >
+> - Run style checks: `mvn validate`
 > - Run all tests: `mvn test`
 >
 > ### TODO (for improvements)
 >
 > - Add Javadoc and comments where they clarify intent.
 > - Add REST-specific DTOs for API request and response shapes.
-> - Add a style checker; some lines currently exceed the preferred line length.
+> - Tighten style-checking rules further if the project grows.
 > - Increase test coverage.
 > - Consider converting projects from a map entry to a dedicated `Project` class.
 > - Fix overlapping command line and spring logs when running both console and rest API.
@@ -108,4 +109,3 @@ _Optional_:
 - `POST /projects/{project_id}/tasks`: Create a new task for a project
 - `PUT /projects/{project_id}/tasks/{task_id}?deadline`: Update the deadline for a task
 - `GET /projects/view_by_deadline`: Get all tasks grouped by deadline (or also by project if you did the optional part)
-
