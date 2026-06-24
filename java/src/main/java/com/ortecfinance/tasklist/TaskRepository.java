@@ -22,12 +22,12 @@ public class TaskRepository {
         tasks.put(name, new ArrayList<>());
     }
 
+    public boolean projectExists(String name) {
+        return tasks.containsKey(name);
+    }
+
     public Task addTask(String project, String description) {
         List<Task> projectTasks = tasks.get(project);
-        if (projectTasks == null) {
-            return null;
-        }
-
         Task task = new Task(nextId(), description, false);
         projectTasks.add(task);
         return task;

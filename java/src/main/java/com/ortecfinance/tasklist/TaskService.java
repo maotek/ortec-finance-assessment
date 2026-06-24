@@ -63,6 +63,10 @@ public class TaskService {
     }
 
     public Task addTask(String project, String description) {
+        if (!taskRepository.projectExists(project)) {
+            return null;
+        }
+
         return taskRepository.addTask(project, description);
     }
 

@@ -20,6 +20,15 @@ public final class TaskRepositoryTest {
     }
 
     @Test
+    void it_checks_whether_a_project_exists() {
+        TaskRepository repository = new TaskRepository();
+        repository.addProject("training");
+
+        assertThat(repository.projectExists("training"), is(true));
+        assertThat(repository.projectExists("missing"), is(false));
+    }
+
+    @Test
     void it_adds_a_task_to_a_project() {
         TaskRepository repository = new TaskRepository();
         repository.addProject("training");
@@ -30,16 +39,6 @@ public final class TaskRepositoryTest {
         assertThat(task.getDescription(), is("SOLID"));
         assertThat(task.isDone(), is(false));
         assertThat(repository.findAll().get("training"), contains(task));
-    }
-
-    @Test
-    void it_returns_null_when_adding_a_task_to_an_unknown_project() {
-        TaskRepository repository = new TaskRepository();
-
-        Task task = repository.addTask("missing", "SOLID");
-
-        assertThat(task, is(nullValue()));
-        assertThat(repository.findAll().isEmpty(), is(true));
     }
 
     @Test
